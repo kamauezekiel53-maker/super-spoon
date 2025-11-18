@@ -1,75 +1,80 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Movie Hub</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MovieHub — TMDB + GiftedTech</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-
-<header>
-  <h1>🎬 Movie Hub</h1>
-
-  <div class="top-controls">
-      <input id="searchInput" type="text" placeholder="Search movies...">
-      <button id="themeToggle">🌙</button>
-
-      <select id="colorTheme">
-        <option value="">Theme Color</option>
-        <option value="sunset">Sunset</option>
-        <option value="ocean">Ocean</option>
-        <option value="neo">Neo</option>
+  <header class="top">
+    <div class="brand">🎬 MovieHub</div>
+    <div class="controls">
+      <input id="searchInput" placeholder="Search movies, shows, anime..." autocomplete="off" />
+      <button id="searchBtn" class="btn">Search</button>
+      <select id="sectionSelect" class="select">
+        <option value="popular">Popular</option>
+        <option value="trending">Trending</option>
+        <option value="now_playing">Now Playing</option>
+        <option value="top_rated">Top Rated</option>
+        <option value="tv_popular">TV Shows</option>
+        <option value="anime">Anime</option>
       </select>
-  </div>
+    </div>
+  </header>
 
-  <div id="suggestions" class="suggestions hidden"></div>
+  <main class="container">
+    <div id="loader" class="loader hidden" aria-hidden="true"></div>
+    <section id="moviesGrid" class="grid" aria-live="polite"></section>
 
-  <nav class="sections">
-    <button class="sec-btn active" data-sec="popular">Popular</button>
-    <button class="sec-btn" data-sec="top_rated">Top Rated</button>
-    <button class="sec-btn" data-sec="now_playing">Now Playing</button>
-    <button class="sec-btn" data-sec="trending">Trending</button>
-  </nav>
-</header>
+    <div class="pagination">
+      <button id="prevPage" class="btn">Prev</button>
+      <span id="pageInfo">Page 1</span>
+      <button id="nextPage" class="btn">Next</button>
+    </div>
+  </main>
 
-<div id="loader" class="loader hidden"></div>
+  <!-- Movie Modal -->
+  <div id="modal" class="modal hidden" aria-hidden="true" role="dialog">
+    <div class="modal-card">
+      <button id="modalClose" class="modal-close" aria-label="Close">✕</button>
+      <div class="modal-grid">
+        <div class="left">
+          <img id="modalPoster" class="poster-img" alt="poster" />
+          <div id="modalDownload" class="download-list"></div>
+        </div>
+        <div class="right">
+          <h2 id="modalTitle"></h2>
+          <div id="modalSub" class="muted"></div>
+          <p id="modalOverview"></p>
 
-<div id="moviesGrid" class="grid"></div>
+          <div class="modal-actions">
+            <button id="favBtn" class="btn">☆ Watchlist</button>
+            <a id="openTmdb" class="btn outline" target="_blank" rel="noopener">Open on TMDb</a>
+          </div>
 
-<div class="pagination">
-  <button id="prevPage">Prev</button>
-  <span id="pageInfo">Page 1 of 1</span>
-  <button id="nextPage">Next</button>
-</div>
+          <h3>Trailers</h3>
+          <div id="modalVideos" class="video-grid"></div>
 
-<!-- Modal -->
-<div id="modal" class="modal hidden">
-  <div class="modal-content">
-    <span id="modalClose" class="modal-close">&times;</span>
-
-    <div class="modal-header">
-      <img id="modalPoster" class="modal-poster">
-      <div>
-        <h2 id="modalTitle"></h2>
-        <p id="modalSub" class="muted"></p>
+          <h3>Cast</h3>
+          <div id="modalCast" class="cast-grid"></div>
+        </div>
       </div>
     </div>
-
-    <p id="modalOverview"></p>
-
-    <h3>Cast</h3>
-    <div id="modalCast" class="cast-grid"></div>
-
-    <h3>Trailers</h3>
-    <div id="modalVideos" class="video-grid"></div>
-
-    <h3>Download Links</h3>
-    <div id="modalDownload"></div>
-
   </div>
-</div>
 
-<script src="app.js"></script>
+  <!-- Player Modal -->
+  <div id="playerModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-card small">
+      <button class="modal-close player-close">✕</button>
+      <div id="playerContainer"></div>
+    </div>
+  </div>
+
+  <script src="js/axios.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/app.js" defer></script>
 </body>
-          </html> 
+</html>
