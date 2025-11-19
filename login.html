@@ -1,0 +1,365 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Movie Web — Auth Mock (Signup / Login / Reset)</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#ff4d6d;--glass: rgba(255,255,255,0.03)}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;background:linear-gradient(180deg,#071024 0%, #071a2a 100%);color:#e6eef8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .container{width:100%;max-width:980px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;box-shadow:0 8px 30px rgba(2,6,23,0.7);overflow:hidden;display:grid;grid-template-columns:1fr 420px}
+    .brand{padding:40px;background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;flex-direction:column;gap:18px}
+    .logo{display:flex;align-items:center;gap:12px}
+    .logo .badge{width:64px;height:64px;background:linear-gradient(135deg,#ff4d6d,#ff9b4d);border-radius:12px;display:grid;place-items:center;font-weight:800;color:white;font-size:22px}
+    h1{margin:0;font-size:22px}
+    p.lead{margin:0;color:var(--muted)}
+    .features{margin-top:12px;display:grid;gap:10px}
+    .feature{display:flex;gap:10px;align-items:center;color:var(--muted)}
+    .feature .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.06)}/* forms pane */
+.pane{padding:28px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));}
+.card{background:var(--card);padding:20px;border-radius:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.02);}
+form{display:grid;gap:12px}
+label{font-size:13px;color:var(--muted)}
+input[type=text],input[type=email],input[type=password]{width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
+.row{display:flex;gap:8px}
+button{cursor:pointer;padding:10px 14px;border-radius:8px;border:0;background:linear-gradient(90deg,var(--accent),#ff7a66);color:white;font-weight:600}
+.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+.muted{color:var(--muted);font-size:13px}
+.links{display:flex;justify-content:space-between;align-items:center}
+.error{color:#ffb4b4;font-size:13px}
+.ok{color:#a7f3d0;font-size:13px}
+
+.small{font-size:13px}
+.hidden{display:none}
+.center{display:grid;place-items:center}
+.profile{display:flex;align-items:center;gap:12px}
+.avatar{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#ff9b4d,#ff4d6d);display:grid;place-items:center;font-weight:700}
+
+/* responsive */
+@media (max-width:920px){.container{grid-template-columns:1fr}.brand{display:none}}
+
+  </style>
+</head>
+<body>
+  <div class="container" id="app">
+    <div class="brand">
+      <div class="logo"><div class="badge">Mv</div><div><h1>MovieWeb</h1><p class="lead">Search • Watch • Enjoy</p></div></div>
+      <div class="features">
+        <div class="feature"><div class="dot"></div><div>Signup & Login (mock backend)</div></div>
+        <div class="feature"><div class="dot"></div><div>Forgot password flow with reset token</div></div>
+        <div class="feature"><div class="dot"></div><div>Secure password hashing via Web Crypto</div></div>
+        <div class="feature"><div class="dot"></div><div>Protected profile page + logout</div></div>
+      </div>
+      <div style="margin-top:auto;color:var(--muted);font-size:12px">This is a frontend-only mock. Replace the "api" object with real endpoints to integrate with backend.</div>
+    </div><div class="pane">
+
+  <!-- LOGIN -->
+  <div class="card" id="page-login">
+    <h2>Welcome back</h2>
+    <p class="muted">Sign in to continue to MovieWeb</p>
+    <form id="form-login">
+      <div>
+        <label for="login-email">Email</label>
+        <input id="login-email" type="email" required autocomplete="username">
+      </div>
+      <div>
+        <label for="login-password">Password</label>
+        <input id="login-password" type="password" required autocomplete="current-password">
+      </div>
+      <div class="links">
+        <div><label class="small"><input id="remember" type="checkbox"> Remember me</label></div>
+        <div><a href="#" id="link-forgot" class="small muted">Forgot password?</a></div>
+      </div>
+      <div class="row">
+        <button type="submit">Sign in</button>
+        <button type="button" id="to-signup" class="ghost">Create account</button>
+      </div>
+      <div id="login-msg" class="small"></div>
+    </form>
+  </div>
+
+  <!-- SIGNUP -->
+  <div class="card hidden" id="page-signup">
+    <h2>Create account</h2>
+    <p class="muted">Make an account to save your watchlist</p>
+    <form id="form-signup">
+      <div>
+        <label for="signup-name">Full name</label>
+        <input id="signup-name" type="text" required>
+      </div>
+      <div>
+        <label for="signup-email">Email</label>
+        <input id="signup-email" type="email" required>
+      </div>
+      <div>
+        <label for="signup-password">Password</label>
+        <input id="signup-password" type="password" required>
+      </div>
+      <div>
+        <label for="signup-password-confirm">Confirm password</label>
+        <input id="signup-password-confirm" type="password" required>
+      </div>
+      <div class="row">
+        <button type="submit">Create account</button>
+        <button type="button" id="to-login" class="ghost">Back to sign in</button>
+      </div>
+      <div id="signup-msg" class="small"></div>
+    </form>
+  </div>
+
+  <!-- FORGOT -->
+  <div class="card hidden" id="page-forgot">
+    <h2>Reset password</h2>
+    <p class="muted">Enter your email and we will create a temporary reset token (mock)</p>
+    <form id="form-forgot">
+      <div>
+        <label for="forgot-email">Email</label>
+        <input id="forgot-email" type="email" required>
+      </div>
+      <div class="row">
+        <button type="submit">Request reset</button>
+        <button type="button" id="forgot-back" class="ghost">Back</button>
+      </div>
+      <div id="forgot-msg" class="small"></div>
+    </form>
+  </div>
+
+  <!-- RESET (enter the token + new password) -->
+  <div class="card hidden" id="page-reset">
+    <h2>Set new password</h2>
+    <p class="muted">Use the token we generated to set a new password</p>
+    <form id="form-reset">
+      <div>
+        <label for="reset-email">Email</label>
+        <input id="reset-email" type="email" required>
+      </div>
+      <div>
+        <label for="reset-token">Reset token</label>
+        <input id="reset-token" type="text" required>
+      </div>
+      <div>
+        <label for="reset-password">New password</label>
+        <input id="reset-password" type="password" required>
+      </div>
+      <div class="row">
+        <button type="submit">Reset password</button>
+        <button type="button" id="reset-back" class="ghost">Back</button>
+      </div>
+      <div id="reset-msg" class="small"></div>
+    </form>
+  </div>
+
+  <!-- PROFILE (protected) -->
+  <div class="card hidden" id="page-profile">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="profile"><div class="avatar" id="profile-initials">MK</div><div>
+        <div id="profile-name" style="font-weight:700">Name</div>
+        <div id="profile-email" class="muted small">email</div>
+      </div></div>
+      <div><button id="logout" class="ghost">Logout</button></div>
+    </div>
+    <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.02)">
+    <div class="muted">This is a protected area. Replace the client-side auth with your server endpoints in production.</div>
+  </div>
+
+</div>
+
+  </div>  <script>
+  // -------------------------
+  // Simple "mock backend" implemented in the browser using localStorage.
+  // Passwords are hashed via Web Crypto (PBKDF2 -> SHA-256) with a salt.
+  // This file demonstrates flows only — do NOT use client-only auth for production.
+  // -------------------------
+
+  // Helpers: show page
+  const pages = {
+    login: document.getElementById('page-login'),
+    signup: document.getElementById('page-signup'),
+    forgot: document.getElementById('page-forgot'),
+    reset: document.getElementById('page-reset'),
+    profile: document.getElementById('page-profile')
+  };
+  function showPage(name){
+    Object.values(pages).forEach(el=>el.classList.add('hidden'));
+    pages[name].classList.remove('hidden');
+  }
+
+  // -------------------------
+  // Crypto helpers (Web Crypto API)
+  // -------------------------
+  async function randomSalt(){
+    const a = new Uint8Array(16);
+    crypto.getRandomValues(a);
+    return btoa(String.fromCharCode(...a));
+  }
+  async function deriveKey(password, salt, iterations=100_000){
+    const enc = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), {name:'PBKDF2'}, false, ['deriveBits','deriveKey']);
+    const key = await crypto.subtle.deriveKey({name:'PBKDF2', salt: Uint8Array.from(atob(salt), c=>c.charCodeAt(0)), iterations, hash:'SHA-256'}, keyMaterial, {name:'AES-GCM', length:256}, true, ['encrypt','decrypt']);
+    const raw = await crypto.subtle.exportKey('raw', key); // 32 bytes
+    return btoa(String.fromCharCode(...new Uint8Array(raw)));
+  }
+
+  // -------------------------
+  // Storage + API mock
+  // -------------------------
+  // users stored under key 'mv_users' as object {email: {name, salt, hash}}
+  function getUsers(){
+    try{ return JSON.parse(localStorage.getItem('mv_users')||'{}'); }catch(e){return{}} }
+  function saveUsers(u){ localStorage.setItem('mv_users', JSON.stringify(u)); }
+
+  // sessions: store current token in localStorage mv_session = {email, token, expires}
+  function saveSession(session){ localStorage.setItem('mv_session', JSON.stringify(session)); }
+  function clearSession(){ localStorage.removeItem('mv_session'); }
+  function getSession(){ try{return JSON.parse(localStorage.getItem('mv_session')||'null')}catch(e){return null} }
+
+  // password reset tokens store under 'mv_reset' as {email: {token, expires}}
+  function getResets(){ try{return JSON.parse(localStorage.getItem('mv_reset')||'{}')}catch(e){return{}} }
+  function saveResets(r){ localStorage.setItem('mv_reset', JSON.stringify(r)); }
+
+  const api = {
+    register: async ({name,email,password})=>{
+      const users = getUsers();
+      if(users[email]) throw new Error('Email already registered');
+      const salt = await randomSalt();
+      const hash = await deriveKey(password, salt);
+      users[email] = {name, salt, hash};
+      saveUsers(users);
+      return {ok:true};
+    },
+    login: async ({email,password})=>{
+      const users = getUsers();
+      const u = users[email];
+      if(!u) throw new Error('No account for that email');
+      const hash = await deriveKey(password, u.salt);
+      if(hash !== u.hash) throw new Error('Invalid password');
+      // create session token (mock)
+      const token = btoa(Date.now()+"::"+email+"::"+Math.random());
+      const expires = Date.now() + 1000*60*60*24*7; // 7 days
+      saveSession({email, token, expires});
+      return {ok:true, token, email};
+    },
+    requestPasswordReset: async ({email})=>{
+      const users = getUsers();
+      if(!users[email]) throw new Error('No account with that email');
+      const token = Math.random().toString(36).slice(2,9).toUpperCase();
+      const expires = Date.now() + 1000*60*15; // 15 min
+      const r = getResets(); r[email] = {token, expires}; saveResets(r);
+      // In a real app you'd email the token — here we return it so the developer can copy/paste
+      return {ok:true, token};
+    },
+    resetPassword: async ({email,token,password})=>{
+      const r = getResets();
+      const rec = r[email];
+      if(!rec || rec.token !== token) throw new Error('Invalid token');
+      if(Date.now()>rec.expires) throw new Error('Token expired');
+      const users = getUsers();
+      if(!users[email]) throw new Error('No account');
+      const salt = await randomSalt();
+      const hash = await deriveKey(password, salt);
+      users[email].salt = salt; users[email].hash = hash; saveUsers(users);
+      delete r[email]; saveResets(r);
+      return {ok:true};
+    },
+    me: async ()=>{
+      const s = getSession(); if(!s || Date.now()>s.expires) throw new Error('Not authenticated');
+      const users = getUsers(); const u = users[s.email]; if(!u) throw new Error('Not authenticated');
+      return {email:s.email,name:u.name};
+    },
+    logout: async ()=>{ clearSession(); return {ok:true}; }
+  };
+
+  // -------------------------
+  // UI wiring
+  // -------------------------
+  document.getElementById('to-signup').addEventListener('click',()=>showPage('signup'));
+  document.getElementById('to-login').addEventListener('click',()=>showPage('login'));
+  document.getElementById('link-forgot').addEventListener('click',()=>showPage('forgot'));
+  document.getElementById('forgot-back').addEventListener('click',()=>showPage('login'));
+  document.getElementById('reset-back').addEventListener('click',()=>showPage('login'));
+
+  // Auto-redirect if session present
+  (async function init(){
+    const s = getSession();
+    if(s && s.expires > Date.now()){
+      try{ const me = await api.me(); showProfile(me); showPage('profile'); return; }catch(e){ clearSession(); }
+    }
+    showPage('login');
+  })();
+
+  // Signup
+  document.getElementById('form-signup').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim().toLowerCase();
+    const pw = document.getElementById('signup-password').value;
+    const confirm = document.getElementById('signup-password-confirm').value;
+    const msgEl = document.getElementById('signup-msg'); msgEl.textContent='';
+    if(!name || !email || !pw){ msgEl.textContent='Please complete all fields'; msgEl.className='small error'; return; }
+    if(pw.length < 8){ msgEl.textContent='Password must be at least 8 characters'; msgEl.className='small error'; return; }
+    if(pw !== confirm){ msgEl.textContent='Passwords do not match'; msgEl.className='small error'; return; }
+    try{
+      await api.register({name,email,password:pw});
+      msgEl.textContent='Account created. You can sign in now.'; msgEl.className='small ok';
+      setTimeout(()=>{ showPage('login'); },800);
+    }catch(err){ msgEl.textContent = err.message; msgEl.className='small error'; }
+  });
+
+  // Login
+  document.getElementById('form-login').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim().toLowerCase();
+    const pw = document.getElementById('login-password').value;
+    const remember = document.getElementById('remember').checked;
+    const msgEl = document.getElementById('login-msg'); msgEl.textContent='';
+    try{
+      const r = await api.login({email,password:pw});
+      msgEl.textContent='Signed in'; msgEl.className='small ok';
+      // optionally extend session if remember
+      const s = getSession(); if(s && remember){ s.expires = Date.now() + 1000*60*60*24*30; saveSession(s); }
+      const me = await api.me(); showProfile(me); showPage('profile');
+    }catch(err){ msgEl.textContent = err.message; msgEl.className='small error'; }
+  });
+
+  // Forgot (request reset)
+  document.getElementById('form-forgot').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const email = document.getElementById('forgot-email').value.trim().toLowerCase();
+    const msgEl = document.getElementById('forgot-msg'); msgEl.textContent='';
+    try{
+      const r = await api.requestPasswordReset({email});
+      // show token to user (mock) and show reset page with auto-fill
+      msgEl.innerHTML = 'Reset token (mock): <strong>'+r.token+'</strong>. Use it on the next screen.';
+      msgEl.className='small ok';
+      setTimeout(()=>{ document.getElementById('reset-email').value = email; document.getElementById('reset-token').value = r.token; showPage('reset'); },900);
+    }catch(err){ msgEl.textContent = err.message; msgEl.className='small error'; }
+  });
+
+  // Reset
+  document.getElementById('form-reset').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const email = document.getElementById('reset-email').value.trim().toLowerCase();
+    const token = document.getElementById('reset-token').value.trim();
+    const password = document.getElementById('reset-password').value;
+    const msgEl = document.getElementById('reset-msg'); msgEl.textContent='';
+    if(password.length < 8){ msgEl.textContent='Password must be at least 8 characters'; msgEl.className='small error'; return; }
+    try{
+      await api.resetPassword({email,token,password});
+      msgEl.textContent = 'Password reset. You can sign in now.'; msgEl.className='small ok';
+      setTimeout(()=>{ showPage('login'); },800);
+    }catch(err){ msgEl.textContent = err.message; msgEl.className='small error'; }
+  });
+
+  // Logout
+  document.getElementById('logout').addEventListener('click', async ()=>{
+    await api.logout(); showPage('login'); document.getElementById('login-msg').textContent='Logged out'; document.getElementById('login-msg').className='small muted';
+  });
+
+  // profile UI
+  function showProfile(me){ document.getElementById('profile-name').textContent = me.name; document.getElementById('profile-email').textContent = me.email; document.getElementById('profile-initials').textContent = initials(me.name); }
+  function initials(name){ return name.split(' ').map(s=>s[0]||'').slice(0,2).join('').toUpperCase(); }
+
+  </script></body>
+</html>
